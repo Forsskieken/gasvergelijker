@@ -584,7 +584,7 @@ footer {
   <div class="alert">
     <span class="alert-icon">⚠️</span>
     <div>
-      <strong>TTF staat momenteel ~€54/MWh (25 maart 2026)</strong> — de oorlog in het Midden-Oosten en aanvallen op Qatarese LNG-installaties hebben de prijs in enkele dagen doen verdubbelen t.o.v. februari (€30/MWh). Vaste contracten zijn beschikbaar bij beperkte volumes — vergelijk snel.
+      <strong>Zet de schuifregelaar eerst op de koers van vandaag.</strong> De drie scenario's zijn geschreven in maart 2026, toen de TTF in enkele dagen verdubbelde van €30 naar €55/MWh. Hun <em>vorm</em> blijft bruikbaar — dalend, snel dalend of aanhoudend hoog — en het vertrekpunt schuift mee met wat u instelt.
     </div>
   </div>
 
@@ -603,7 +603,7 @@ footer {
         <label>Actuele TTF-marktprijs</label>
         <div class="slider-wrap">
           <div class="slider-row">
-            <input type="range" id="ttf-slider" min="20" max="80" step="0.5" value="54">
+            <input type="range" id="ttf-slider" min="20" max="120" step="0.5" value="54">
             <span class="ttf-display" id="ttf-disp">€54</span>
           </div>
           <div class="ttf-meta">FLEX energieprijs nu: <strong id="flex-ep-now">—</strong> ct/kWh &nbsp;·&nbsp; Breekpunt: €35,6/MWh</div>
@@ -727,7 +727,10 @@ footer {
 </footer>
 
 <script>
-const MONTHS = ['Apr','Mei','Jun','Jul','Aug','Sep','Okt','Nov','Dec','Jan','Feb','Mrt'];
+// De twaalf maanden vanaf vandaag. Stond hier vast op 'Apr', waardoor de
+// grafiek bleef staan op de maand waarin dit geschreven is.
+const MONTH_NAMES = ['Jan','Feb','Mrt','Apr','Mei','Jun','Jul','Aug','Sep','Okt','Nov','Dec'];
+const MONTHS = Array.from({length:12}, (_,i) => MONTH_NAMES[(new Date().getMonth()+i) % 12]);
 const WEIGHTS = [1100,800,600,450,450,750,1450,2550,2900,3400,2550,2200];
 const WEIGHT_TOTAL = WEIGHTS.reduce((a,b)=>a+b,0);
 
@@ -772,8 +775,17 @@ function fixedCosts(annual) {
     Math.min(annual, 12000) * TAX1 + Math.max(0, annual - 12000) * TAX2;
 }
 
+// De drie scenario's zijn in maart 2026 geschreven en beginnen alle drie op de
+// TTF van toen (55). Zonder deze herschaling blijft de grafiek op 55 staan hoe
+// ver je de schuifregelaar ook verzet, en spreekt hij de samenvatting tegen. De
+// vorm van het scenario blijft; alleen het vertrekpunt wordt jouw koers.
+function scenarioTTF(sc) {
+  const factor = getTTF() / sc.ttf[0];
+  return sc.ttf.map(v => v * factor);
+}
+
 function calcFlexEnergy(sc, consumption) {
-  return sc.ttf.reduce((sum, ttf, i) => sum + consumption[i] * flexEP(ttf) / 100, 0);
+  return scenarioTTF(sc).reduce((sum, ttf, i) => sum + consumption[i] * flexEP(ttf) / 100, 0);
 }
 
 function calcTotal(provider, sc, annual, consumption, fixd) {
@@ -889,7 +901,7 @@ function update() {
   const ttf = getTTF();
 
   // Slider gradient
-  const pct = ((ttf - 20) / 60 * 100).toFixed(1);
+  const pct = ((ttf - 20) / 100 * 100).toFixed(1);
   document.getElementById('ttf-slider').style.setProperty('--pct', pct + '%');
   document.getElementById('ttf-disp').textContent = '€' + ttf.toFixed(0);
   document.getElementById('flex-ep-now').textContent = flexEP(ttf).toFixed(2).replace('.',',');
@@ -927,14 +939,17 @@ function update() {
 }
 
 function buildCharts(sc, consumption, annual, fixd) {
-  // TTF chart
+  // TTF chart — de y-as volgt de data, anders loopt een hoge koers eruit.
+  const scPath = scenarioTTF(sc);
+  const yMax = Math.max(75, Math.ceil(Math.max(...scPath) / 10) * 10 + 5);
+  const yMin = Math.min(20, Math.floor(Math.min(...scPath, BREAKEVEN) / 10) * 10);
   if (ttfChart) ttfChart.destroy();
   ttfChart = new Chart(document.getElementById('ttfChart'), {
     type: 'line',
     data: {
       labels: MONTHS,
       datasets: [
-        { data: sc.ttf, borderColor: '#FF8918', backgroundColor: 'rgba(255,137,24,0.08)', fill: true, borderWidth: 2.5, pointRadius: 4, pointBackgroundColor: '#FF8918', tension: 0.3 },
+        { data: scenarioTTF(sc), borderColor: '#FF8918', backgroundColor: 'rgba(255,137,24,0.08)', fill: true, borderWidth: 2.5, pointRadius: 4, pointBackgroundColor: '#FF8918', tension: 0.3 },
         { data: Array(12).fill(BREAKEVEN), borderColor: '#ffb87a', borderWidth: 1.5, borderDash: [5,4], pointRadius: 0, fill: false }
       ]
     },
@@ -942,12 +957,12 @@ function buildCharts(sc, consumption, annual, fixd) {
       responsive: true, maintainAspectRatio: false,
       plugins: { legend: { display: false }, tooltip: { callbacks: {
         label: item => item.datasetIndex === 0
-          ? `TTF: €${item.raw}/MWh → FLEX: ${flexEP(item.raw).toFixed(2)} ct/kWh`
+          ? `TTF: €${item.raw.toFixed(1)}/MWh → FLEX: ${flexEP(item.raw).toFixed(2)} ct/kWh`
           : `Breekpunt: €${item.raw}/MWh`
       }}},
       scales: {
         x: { ticks: { color:'#9996a8', font:{size:11,family:'Jost'} }, grid: { color:'rgba(96,41,209,0.05)' } },
-        y: { min: 20, max: 75, ticks: { callback: v=>'€'+v, color:'#9996a8', font:{size:11,family:'Jost'} }, grid: { color:'rgba(96,41,209,0.05)' } }
+        y: { min: yMin, max: yMax, ticks: { callback: v=>'€'+v, color:'#9996a8', font:{size:11,family:'Jost'} }, grid: { color:'rgba(96,41,209,0.05)' } }
       }
     }
   });
@@ -960,7 +975,7 @@ function buildCharts(sc, consumption, annual, fixd) {
   providers.forEach((p, i) => {
     let monthlyData;
     if (p.isFlexEneco) {
-      monthlyData = sc.ttf.map((ttf, mi) => (consumption[mi] * flexEP(ttf) / 100).toFixed(2));
+      monthlyData = scenarioTTF(sc).map((ttf, mi) => (consumption[mi] * flexEP(ttf) / 100).toFixed(2));
     } else if (p.energyPrice !== null && p.fixedFee !== null) {
       monthlyData = consumption.map(k => (k * p.energyPrice / 100).toFixed(2));
     } else return;
