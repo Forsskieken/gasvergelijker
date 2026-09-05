@@ -1,51 +1,51 @@
-# gasvergelijker
+# Aardgas FLEX vs VAST
 
-## ▶ [Open the tool](https://forsskieken.github.io/gasvergelijker/)
+## ▶ [Open de rekentool](https://forsskieken.github.io/gasvergelijker/)
 
-Nothing to install, nothing to download — the link opens it in your browser, on a
-phone as well. **Rechtstreeks naar de rekentool: [klik hier](https://forsskieken.github.io/gasvergelijker/).**
+**Niets downloaden, niets installeren.** Klik op de link en de rekentool opent in
+uw browser, ook op een telefoon.
 
-Compares a Belgian natural gas contract — variable (FLEX) against fixed — over
-the coming twelve months, with all network fees, taxes and standing charges
-included.
+Vergelijk uw aardgascontract bij meerdere leveranciers — variabel (FLEX) tegen
+vast — over de komende twaalf maanden, met netkosten, taksen en vaste
+vergoedingen inbegrepen.
 
-![The comparator with the default figures](docs/screenshot.png)
+![De rekentool met de standaardcijfers](docs/screenshot.png)
 
-## Use
+## Zo gebruikt u hem
 
-1. Enter your **yearly consumption** in kWh (it is on your annual bill).
-2. Drag the **TTF slider** to today's market price in €/MWh. The page links to
-   [Yahoo Finance](https://finance.yahoo.com/quote/TTF%3DF/) and to the
-   [ICE](https://www.theice.com/products/27996665/Dutch-TTF-Gas-Futures) exchange.
-3. Pick a **price scenario** for the coming year — the three tabs.
-4. Type each supplier's standing charge and energy price into the table. The
-   yearly total updates as you type; the cheapest row is marked.
+1. Vul uw **jaarverbruik** in kWh in. Dat staat op uw jaarafrekening.
+2. Zet de **TTF-schuifregelaar** op de koers van vandaag, in euro per MWh. De
+   pagina linkt naar [Yahoo Finance](https://finance.yahoo.com/quote/TTF%3DF/) en
+   naar de beurs [ICE](https://www.theice.com/products/27996665/Dutch-TTF-Gas-Futures).
+3. Kies een **prijsscenario** voor het komende jaar — de drie tabbladen.
+4. Vul per leverancier de vaste vergoeding en de energieprijs in. De jaarprijs
+   rekent mee terwijl u typt; de goedkoopste rij krijgt een label.
 
-## Keep your own copy
+## Zelf een kopie bewaren
 
-Right-click the link above and save, or download `index.html` from this page. The
-file works from your disk with no internet, except that the charts and the font
-come from a CDN.
+Rechtsklik op de link hierboven en kies opslaan, of download `index.html` van
+deze pagina. Het bestand werkt vanaf uw schijf; enkel de grafieken en het
+lettertype komen van het internet.
 
-## What it computes
+## Wat het berekent
 
-| Part | Detail |
+| Onderdeel | Detail |
 |---|---|
-| FLEX energy price | `(0.1 × monthly TTF + 1.021) × 1.06`, in ct/kWh incl. 6 % VAT |
-| Break-even | The TTF price below which FLEX beats the fixed contract |
-| Network fees | Fluvius Antwerpen T2 (> 5 000 kWh/year), standing plus per-kWh |
+| FLEX-energieprijs | `(0,1 × TTF-maandgemiddelde + 1,021) × 1,06`, in ct/kWh incl. 6 % btw |
+| Breekpunt | De TTF-koers waaronder FLEX goedkoper is dan het vaste contract |
+| Netkosten | Fluvius Antwerpen T2 (> 5 000 kWh/jaar), vaste term plus per kWh |
 | Transport | Fluxys, per kWh |
-| Excise | 0.9782 ct/kWh up to 12 000 kWh, 1.0681 ct/kWh above |
-| Monthly profile | Yearly consumption spread over a typical Belgian heating curve |
+| Accijnzen | 0,9782 ct/kWh tot 12 000 kWh, 1,0681 ct/kWh daarboven |
+| Maandprofiel | Jaarverbruik gespreid over een typisch Belgisch stookprofiel |
 
-## Read this before you trust a number
+## Lees dit voor u een cijfer gelooft
 
-- **The rates are a snapshot of March 2026** and the scenarios were written
-  around the market of that moment. Check every figure against the current rate
-  card before you decide anything.
-- Only one supplier's rates are filled in; the rest stay zero until you type them.
-- The TTF you look up online is the day price, while the formula uses the monthly
-  average. Good enough for an estimate, not exact.
-- Estimates, not an offer. No financial advice.
-- Nothing leaves your browser: no upload, no server, nothing stored.
-- The interface and the rates are Belgian, and so is the language.
+- **De tarieven zijn een momentopname van maart 2026** en de scenario's zijn
+  geschreven rond de markt van dat moment. Toets elk cijfer aan de actuele
+  tariefkaart voor u iets beslist.
+- Alleen de tarieven van één leverancier zijn ingevuld; de rest blijft nul tot u
+  ze zelf invult.
+- De TTF die u online vindt is de dagkoers, terwijl de formule met het
+  maandgemiddelde rekent. Goed genoeg voor een raming, niet exact.
+- Ramingen, geen aanbod. Geen financieel advies.
+- Er verlaat niets uw browser: geen upload, geen server, niets bewaard.
