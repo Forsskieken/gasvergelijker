@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aardgas Tariefvergelijker 2026 — WIJ voor Wijnegem</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --orange: #FF8918;
+  --orange-light: #fff4e8;
+  --orange-dark: #cc6a00;
+  --purple: #6029D1;
+  --purple-light: #f0ebfc;
+  --blue: #1694FF;
+  --blue-light: #e8f4ff;
+  --text: #1a1820;
+  --text2: #5a5768;
+  --text3: #9996a8;
+  --bg: #f6f5f9;
+  --surface: #ffffff;
+  --surface2: #f1f0f5;
+  --border: rgba(96,41,209,0.1);
+  --border2: rgba(96,41,209,0.18);
+  --radius: 14px;
+  --radius-sm: 9px;
+  --shadow: 0 2px 12px rgba(96,41,209,0.07);
+}
+
+body {
+  font-family: 'Jost', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding-bottom: 60px;
+}
+
+/* ── HEADER ── */
+header {
+  background: var(--purple);
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+header::before {
+  content: '';
+  position: absolute;
+  top: -60px; right: -80px;
+  width: 320px; height: 320px;
+  border-radius: 50%;
+  background: rgba(255,137,24,0.18);
+  pointer-events: none;
+}
+
+header::after {
+  content: '';
+  position: absolute;
+  bottom: -40px; left: 20%;
+  width: 200px; height: 200px;
+  border-radius: 50%;
+  background: rgba(22,148,255,0.12);
+  pointer-events: none;
+}
+
+.header-inner {
+  max-width: 940px;
+  margin: 0 auto;
+  padding: 32px 28px 30px;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 28px;
+}
+
+.logo-block {
+  flex-shrink: 0;
+}
+
+.logo-badge img { height: 48px; width: auto; display: block; }
+
+.logo-badge {
+  /* Wit vlak achter het logo: de drie figuren zijn oranje, paars en blauw, en
+     het paarse zou wegvallen tegen de paarse header. */
+  background: #ffffff;
+  padding: 8px 10px;
+  border-radius: 10px;
+  line-height: 0;
+  display: inline-block;
+}
+
+.logo-sub {
+  font-size: 10px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.55);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  margin-top: 6px;
+  text-align: center;
+}
+
+.header-text h1 {
+  font-size: clamp(22px, 3.5vw, 32px);
+  font-weight: 700;
+  color: white;
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+
+.header-text h1 span { color: var(--orange); }
+
+.header-sub {
+  font-size: 13.5px;
+  color: rgba(255,255,255,0.6);
+  line-height: 1.6;
+  max-width: 520px;
+  font-weight: 300;
+}
+
+.header-tag {
+  display: inline-block;
+  background: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.8);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-bottom: 10px;
+  letter-spacing: .05em;
+}
+
+/* ── CONTAINER ── */
+.container {
+  max-width: 940px;
+  margin: 0 auto;
+  padding: 28px 20px 0;
+}
+
+/* ── ALERT ── */
+.alert {
+  background: linear-gradient(135deg, #fff4e8 0%, #fff8f0 100%);
+  border: 1.5px solid var(--orange);
+  border-radius: var(--radius);
+  padding: 14px 20px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  margin-bottom: 24px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  color: var(--text);
+}
+.alert-icon { font-size: 20px; flex-shrink: 0; }
+.alert strong { color: var(--orange-dark); font-weight: 600; }
+
+/* ── SECTION LABEL ── */
+.section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--purple);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border2);
+}
+
+/* ── CARDS ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 22px 26px;
+  margin-bottom: 18px;
+}
+
+/* ── INPUTS ── */
+.input-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 580px) {
+  .input-grid { grid-template-columns: 1fr; }
+  .header-inner { flex-direction: column; gap: 16px; }
+}
+
+.field label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 8px;
+}
+
+.input-wrap {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid var(--border2);
+  border-radius: var(--radius-sm);
+  background: var(--surface2);
+  transition: border-color .15s, background .15s;
+  overflow: hidden;
+}
+.input-wrap:focus-within {
+  border-color: var(--blue);
+  background: white;
+  box-shadow: 0 0 0 3px rgba(22,148,255,0.1);
+}
+
+.input-wrap input[type="number"] {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 11px 14px;
+  font-size: 22px;
+  font-family: 'Jost', sans-serif;
+  font-weight: 600;
+  color: var(--blue);
+  outline: none;
+  width: 100%;
+  min-width: 0;
+}
+
+.input-unit {
+  padding: 0 14px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text3);
+  white-space: nowrap;
+}
+
+/* ── SLIDER ── */
+.slider-wrap { display: flex; flex-direction: column; gap: 9px; }
+
+.slider-row { display: flex; align-items: center; gap: 14px; }
+
+.slider-row input[type="range"] {
+  flex: 1;
+  -webkit-appearance: none;
+  height: 5px;
+  border-radius: 3px;
+  background: linear-gradient(to right, var(--orange) 0%, var(--orange) var(--pct,50%), rgba(96,41,209,0.15) var(--pct,50%));
+  outline: none;
+  cursor: pointer;
+}
+.slider-row input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--orange);
+  border: 3px solid white;
+  box-shadow: 0 1px 6px rgba(255,137,24,0.4);
+  cursor: pointer;
+}
+
+.ttf-display {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--blue);
+  min-width: 72px;
+  text-align: right;
+}
+
+.ttf-meta {
+  font-size: 12px;
+  color: var(--text3);
+  font-weight: 400;
+}
+.ttf-meta strong { color: var(--blue); font-weight: 600; }
+
+/* ── SCENARIO TABS ── */
+.tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+
+.tab {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1.5px solid var(--border2);
+  background: transparent;
+  font-family: 'Jost', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--text2);
+  transition: all .15s;
+}
+.tab:hover { border-color: var(--purple); color: var(--purple); }
+.tab.active { background: var(--purple); color: white; border-color: var(--purple); }
+
+.sc-desc {
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.55;
+  background: var(--purple-light);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-weight: 300;
+}
+
+/* ── PROVIDER TABLE ── */
+.provider-table-wrap { overflow-x: auto; }
+
+table.providers {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+  min-width: 600px;
+}
+
+table.providers thead tr {
+  border-bottom: 2px solid var(--purple);
+}
+
+table.providers thead th {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--purple);
+  padding: 0 10px 10px;
+  text-align: left;
+}
+
+table.providers thead th:not(:first-child) { text-align: right; }
+
+table.providers tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background .12s;
+}
+table.providers tbody tr:hover { background: var(--bg); }
+table.providers tbody tr.best-row { background: #f0fcf5; }
+
+table.providers td {
+  padding: 11px 10px;
+  vertical-align: middle;
+}
+
+table.providers td:not(:first-child) { text-align: right; }
+
+.provider-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.contract-type {
+  font-size: 11px;
+  color: var(--text3);
+  font-weight: 400;
+}
+
+.editable {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.editable input {
+  width: 72px;
+  border: 1.5px solid var(--border2);
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-family: 'Jost', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--blue);
+  text-align: right;
+  background: var(--surface2);
+  outline: none;
+  transition: border-color .15s;
+}
+.editable input:focus {
+  border-color: var(--blue);
+  background: white;
+  box-shadow: 0 0 0 3px rgba(22,148,255,0.1);
+}
+
+.editable .unit { font-size: 11px; color: var(--text3); }
+
+.total-cell {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--blue);
+}
+
+.best-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #d4f5e4;
+  color: #0d6e3f;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.add-provider {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--purple);
+  background: var(--purple-light);
+  border: 1.5px dashed var(--purple);
+  border-radius: var(--radius-sm);
+  padding: 10px 18px;
+  cursor: pointer;
+  width: 100%;
+  font-family: 'Jost', sans-serif;
+  font-weight: 500;
+  transition: background .15s;
+}
+.add-provider:hover { background: #e4d9f8; }
+
+/* ── SUMMARY CARDS ── */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+@media (max-width: 580px) {
+  .summary-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.scard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  box-shadow: var(--shadow);
+}
+
+.scard-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  margin-bottom: 5px;
+}
+
+.scard-val {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 3px;
+}
+
+.scard-sub { font-size: 11px; color: var(--text3); }
+
+.scard-flex .scard-label { color: var(--orange-dark); }
+.scard-flex .scard-val { color: var(--blue); }
+.scard-flex { border-color: rgba(22,148,255,0.2); background: var(--blue-light); }
+
+.scard-vast .scard-label { color: #0d6e3f; }
+.scard-vast .scard-val { color: var(--blue); }
+.scard-vast { border-color: rgba(22,148,255,0.2); background: var(--blue-light); }
+
+.scard-save .scard-label { color: var(--purple); }
+.scard-save .scard-val { color: var(--blue); }
+.scard-save { border-color: rgba(22,148,255,0.2); background: var(--blue-light); }
+
+/* ── CHARTS ── */
+.chart-title { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+.chart-sub { font-size: 12px; color: var(--text3); margin-bottom: 16px; font-weight: 300; }
+
+.legend {
+  display: flex; gap: 16px; flex-wrap: wrap; margin-top: 12px;
+}
+.leg-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text3); }
+.leg-dot { width: 10px; height: 10px; border-radius: 2px; }
+
+/* ── BREAKDOWN TABLE ── */
+table.breakdown {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+table.breakdown th {
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em;
+  color: var(--text3); padding: 0 0 10px; text-align: right;
+}
+table.breakdown th:first-child { text-align: left; }
+table.breakdown td {
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+table.breakdown td:not(:first-child) { text-align: right; }
+table.breakdown tr:last-child td { border-bottom: none; }
+table.breakdown tfoot td {
+  font-weight: 700; font-size: 14px; padding-top: 14px;
+  border-top: 2px solid var(--blue); border-bottom: none;
+  color: var(--blue);
+}
+
+.tag {
+  display: inline-block;
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 999px; vertical-align: middle;
+  margin-left: 4px;
+}
+.tag-red { background: var(--orange-light); color: var(--orange-dark); }
+.tag-green { background: #d4f5e4; color: #0d6e3f; }
+
+/* ── FOOTNOTE ── */
+.footnote {
+  font-size: 11.5px; color: var(--text3); line-height: 1.6;
+  padding: 16px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-weight: 300;
+}
+.footnote strong { color: var(--text2); font-weight: 500; }
+
+/* ── FOOTER ── */
+footer {
+  margin-top: 32px;
+  border-top: 1px solid var(--border);
+  padding: 20px 28px;
+  max-width: 940px;
+  margin-left: auto; margin-right: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.footer-logo { font-weight: 700; font-size: 14px; color: var(--purple); }
+.footer-note { font-size: 11px; color: var(--text3); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo-block">
+      <div class="logo-badge"><img src="data:image/png;base64,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" alt="WIJ voor Wijnegem"></div>
+      <div class="logo-sub">WIJ voor Wijnegem</div>
+    </div>
+    <div class="header-text">
+      <span class="header-tag">Energiegids 2026</span>
+      <h1>Aardgas <span>FLEX</span> vs VAST</h1>
+      <p class="header-sub">Vergelijk uw aardgascontract bij meerdere leveranciers. Alle netkosten, taksen en vaste vergoedingen inbegrepen voor Fluvius Antwerpen.</p>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="alert">
+    <span class="alert-icon">⚠️</span>
+    <div>
+      <strong>TTF staat momenteel ~€54/MWh (25 maart 2026)</strong> — de oorlog in het Midden-Oosten en aanvallen op Qatarese LNG-installaties hebben de prijs in enkele dagen doen verdubbelen t.o.v. februari (€30/MWh). Vaste contracten zijn beschikbaar bij beperkte volumes — vergelijk snel.
+    </div>
+  </div>
+
+  <!-- ─── JOUW SITUATIE ─── -->
+  <p class="section-label">Jouw situatie</p>
+  <div class="card">
+    <div class="input-grid">
+      <div class="field">
+        <label>Jaarverbruik aardgas</label>
+        <div class="input-wrap">
+          <input type="number" id="annual-kwh" value="19200" min="500" max="100000" step="100">
+          <span class="input-unit">kWh / jaar</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Actuele TTF-marktprijs</label>
+        <div class="slider-wrap">
+          <div class="slider-row">
+            <input type="range" id="ttf-slider" min="20" max="80" step="0.5" value="54">
+            <span class="ttf-display" id="ttf-disp">€54</span>
+          </div>
+          <div class="ttf-meta">FLEX energieprijs nu: <strong id="flex-ep-now">—</strong> ct/kWh &nbsp;·&nbsp; Breekpunt: €35,6/MWh</div>
+          <div class="ttf-meta">Actuele koers opzoeken: <a href="https://finance.yahoo.com/quote/TTF%3DF/" target="_blank" rel="noopener">Yahoo Finance</a> of <a href="https://www.theice.com/products/27996665/Dutch-TTF-Gas-Futures" target="_blank" rel="noopener">ICE</a> — zoek de prijs in euro per MWh en zet de schuifregelaar daarop.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SCENARIO ─── -->
+  <p class="section-label">Prijsscenario komende 12 maanden</p>
+  <div class="card">
+    <div class="tabs" id="tabs">
+      <button class="tab active" data-sc="0">Testaankoop — conflict voorbij november</button>
+      <button class="tab" data-sc="1">Snel herstel — conflict stopt zomer</button>
+      <button class="tab" data-sc="2">Conflict houdt aan</button>
+    </div>
+    <p class="sc-desc" id="sc-desc"></p>
+  </div>
+
+  <!-- ─── LEVERANCIERSVERGELIJKER ─── -->
+  <p class="section-label">Leveranciersvergelijker</p>
+  <div class="card">
+    <p style="font-size:13px;color:var(--text3);margin-bottom:16px;font-weight:300;">Vul de tarieven van uw leverancier in. Kolommen zijn bewerkbaar — de jaarprijs wordt automatisch berekend op basis van uw verbruik en scenario.</p>
+    <div class="provider-table-wrap">
+      <table class="providers" id="providers-table">
+        <thead>
+          <tr>
+            <th>Leverancier</th>
+            <th>Type</th>
+            <th>Vaste verg. (€/jaar)</th>
+            <th>Energieprijs (ct/kWh)</th>
+            <th>Jaarprijs totaal</th>
+          </tr>
+        </thead>
+        <tbody id="providers-body">
+        </tbody>
+      </table>
+    </div>
+    <button class="add-provider" id="add-provider-btn">+ Voeg leverancier toe</button>
+  </div>
+
+  <!-- ─── SAMENVATTING ENECO ─── -->
+  <p class="section-label">Eneco FLEX vs VAST — samenvatting</p>
+  <div class="summary-grid">
+    <div class="scard scard-flex">
+      <p class="scard-label">Eneco FLEX (scenario)</p>
+      <p class="scard-val" id="s-flex">—</p>
+      <p class="scard-sub">variabele energieprijs</p>
+    </div>
+    <div class="scard scard-vast">
+      <p class="scard-label">Eneco VAST</p>
+      <p class="scard-val" id="s-vast">—</p>
+      <p class="scard-sub">4,85 ct/kWh — 1 jaar vast</p>
+    </div>
+    <div class="scard scard-save">
+      <p class="scard-label" id="s-save-lbl">Besparing VAST</p>
+      <p class="scard-val" id="s-save">—</p>
+      <p class="scard-sub" id="s-save-sub">—</p>
+    </div>
+  </div>
+
+  <!-- ─── TTF CHART ─── -->
+  <div class="card">
+    <p class="chart-title">TTF-prijs per maand (scenario)</p>
+    <p class="chart-sub">Stippellijn = breekpunt waaronder FLEX goedkoper is dan Eneco VAST (~€35,6/MWh)</p>
+    <div style="position:relative;height:200px"><canvas id="ttfChart"></canvas></div>
+    <div class="legend">
+      <span class="leg-item"><span class="leg-dot" style="background:var(--orange)"></span>TTF scenario</span>
+      <span class="leg-item"><span class="leg-dot" style="background:#ffb87a;width:16px;height:3px;border-radius:0"></span>Breekpunt Eneco VAST</span>
+    </div>
+  </div>
+
+  <!-- ─── COST CHART ─── -->
+  <div class="card">
+    <p class="chart-title">Maandelijkse energiekost per leverancier</p>
+    <p class="chart-sub">Enkel de variabele energiecomponent — vaste kosten zijn voor alle leveranciers gelijk</p>
+    <div style="position:relative;height:240px"><canvas id="costChart"></canvas></div>
+    <div class="legend" id="cost-legend"></div>
+  </div>
+
+  <!-- ─── KOSTOPBOUW ─── -->
+  <p class="section-label">Gedetailleerde kostopbouw Eneco</p>
+  <div class="card">
+    <table class="breakdown">
+      <thead>
+        <tr>
+          <th>Post</th>
+          <th>FLEX</th>
+          <th>VAST</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Energieprijs</td><td id="t-flex-e">—</td><td id="t-vast-e">—</td></tr>
+        <tr><td>Vaste vergoeding Eneco</td><td>€ 65,00</td><td>€ 65,00</td></tr>
+        <tr><td>Netkosten vaste term (Fluvius Antw. T2)</td><td>€ 83,22</td><td>€ 83,22</td></tr>
+        <tr><td>Netkosten proportioneel (0,91 ct/kWh)</td><td id="t-net-prop" colspan="2" style="text-align:center">—</td></tr>
+        <tr><td>Meteropname</td><td>€ 18,92</td><td>€ 18,92</td></tr>
+        <tr><td>Transportkost Fluxys (0,165 ct/kWh)</td><td id="t-transport" colspan="2" style="text-align:center">—</td></tr>
+        <tr><td>Federale accijnzen + energiebijdrage</td><td id="t-taxes" colspan="2" style="text-align:center">—</td></tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td>Totaal geschat (incl. 6% btw)</td>
+          <td id="t-flex-tot">—</td>
+          <td id="t-vast-tot">—</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="footnote">
+    <strong>Bronnen & methodologie:</strong> Tarieven Eneco op basis van tariefkaart versie 012603 (maart 2026). Nettarief Fluvius Antwerpen T2 (&gt; 5.000 kWh/jaar). FLEX-formule: (0,1 × TTF<sub>maandgemiddelde</sub> + 1,021) × 1,06 incl. 6% btw. De TTF is de Nederlandse gasbeurs en de referentie voor heel West-Europa; de formule rekent met het <em>maandgemiddelde</em>, terwijl de koers die u online vindt de dagkoers is — voor een raming volstaat dat, exact is het niet. Accijnzen: 0–12.000 kWh → 0,9782 ct/kWh; boven 12.000 kWh → 1,0681 ct/kWh. Maandverbruikprofiel geschaald op basis van typisch Belgisch stookprofiel. Vaste contracten andere leveranciers: manueel in te vullen — controleer steeds de actuele tariefkaart van de betrokken leverancier. Prijzen zijn ramingen — werkelijke kosten kunnen afwijken.
+  </div>
+
+</div>
+
+<footer>
+  <span class="footer-logo">WIJ voor Wijnegem</span>
+  <span class="footer-note">Informatiedocument — geen financieel advies. Tarieven: maart 2026.</span>
+</footer>
+
+<script>
+const MONTHS = ['Apr','Mei','Jun','Jul','Aug','Sep','Okt','Nov','Dec','Jan','Feb','Mrt'];
+const WEIGHTS = [1100,800,600,450,450,750,1450,2550,2900,3400,2550,2200];
+const WEIGHT_TOTAL = WEIGHTS.reduce((a,b)=>a+b,0);
+
+const SCENARIOS = [
+  { name: 'Testaankoop', ttf: [55,52,48,44,40,36,34,30,28,28,30,32],
+    desc: 'Testaankoop verwacht dat het conflict rond november afloopt. De prijs daalt geleidelijk over de zomer en herfst, met een stabilisatie onder het breekpunt vanaf oktober. Dit is het meest geciteerde basisscenario.' },
+  { name: 'Snel herstel', ttf: [55,50,42,35,30,28,27,27,28,28,29,30],
+    desc: 'De-escalatie begint al in de zomer van 2026. TTF daalt snel richting het niveau van eind 2025. Dit is het meest optimistische scenario — enkel realistisch bij een snelle politieke oplossing.' },
+  { name: 'Conflict houdt aan', ttf: [55,58,60,58,55,52,50,52,55,58,60,60],
+    desc: 'Het conflict in het Midden-Oosten sleept aan en de LNG-aanvoer blijft verstoord. TTF blijft structureel hoog, ver boven het breekpunt. In dit scenario is VAST duidelijk de juiste keuze.' }
+];
+
+// Provider data — Eneco pre-filled, others blank
+let providers = [
+  { name: 'Eneco', type: 'FLEX (variabel)', fixedFee: 65, energyPrice: null, isFlexEneco: true, color: '#FF8918' },
+  { name: 'Eneco', type: 'VAST (1 jaar)', fixedFee: 65, energyPrice: 4.85, isFlexEneco: false, color: '#6029D1' },
+  { name: 'Luminus', type: 'Vaste prijs', fixedFee: null, energyPrice: null, color: '#1694FF' },
+  { name: 'Engie', type: 'Vaste prijs', fixedFee: null, energyPrice: null, color: '#2aab6e' },
+  { name: 'OCTA+', type: 'Vaste prijs', fixedFee: null, energyPrice: null, color: '#e05a00' },
+];
+
+const BREAKEVEN = 35.55;
+const NET_PROP = 0.0091;
+const NET_FIXED = 83.22;
+const METER = 18.92;
+const TRANSPORT = 0.00165;
+const TAX1 = 0.009782;
+const TAX2 = 0.010681;
+
+let activeScenario = 0;
+let ttfChart, costChart;
+
+function flexEP(ttf) { return (0.1 * ttf + 1.021) * 1.06; }
+
+function getAnnual() { return Math.max(500, Math.min(100000, parseFloat(document.getElementById('annual-kwh').value) || 19200)); }
+function getTTF() { return parseFloat(document.getElementById('ttf-slider').value); }
+
+function getConsumption(annual) { return WEIGHTS.map(w => w / WEIGHT_TOTAL * annual); }
+
+function fixedCosts(annual) {
+  return NET_FIXED + annual * NET_PROP + METER + annual * TRANSPORT +
+    Math.min(annual, 12000) * TAX1 + Math.max(0, annual - 12000) * TAX2;
+}
+
+function calcFlexEnergy(sc, consumption) {
+  return sc.ttf.reduce((sum, ttf, i) => sum + consumption[i] * flexEP(ttf) / 100, 0);
+}
+
+function calcTotal(provider, sc, annual, consumption, fixd) {
+  if (provider.isFlexEneco) {
+    return fixd + 65 + calcFlexEnergy(sc, consumption);
+  }
+  if (provider.energyPrice === null || provider.fixedFee === null) return null;
+  return fixd + provider.fixedFee + annual * provider.energyPrice / 100;
+}
+
+function fmt(v) {
+  if (v === null) return '—';
+  return '€\u00a0' + Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+function fmtDec(v) {
+  if (v === null) return '—';
+  return '€\u00a0' + v.toFixed(2).replace('.',',');
+}
+
+function renderProviderTable() {
+  const annual = getAnnual();
+  const sc = SCENARIOS[activeScenario];
+  const consumption = getConsumption(annual);
+  const fixd = fixedCosts(annual);
+  const ttf = getTTF();
+
+  // Calculate totals for ranking
+  const totals = providers.map(p => calcTotal(p, sc, annual, consumption, fixd));
+  const validTotals = totals.filter(t => t !== null);
+  const minTotal = validTotals.length ? Math.min(...validTotals) : null;
+
+  const tbody = document.getElementById('providers-body');
+  tbody.innerHTML = '';
+
+  providers.forEach((p, idx) => {
+    const total = totals[idx];
+    const isBest = total !== null && total === minTotal;
+    const tr = document.createElement('tr');
+    if (isBest) tr.classList.add('best-row');
+
+    // Name cell
+    const tdName = document.createElement('td');
+    tdName.innerHTML = `<span class="provider-name">${p.name}</span>${isBest ? '<span class="best-badge">Goedkoopst</span>' : ''}`;
+    tr.appendChild(tdName);
+
+    // Type cell
+    const tdType = document.createElement('td');
+    tdType.style.textAlign = 'right';
+    tdType.innerHTML = `<span class="contract-type">${p.type}</span>`;
+    tr.appendChild(tdType);
+
+    // Fixed fee cell
+    const tdFix = document.createElement('td');
+    if (p.isFlexEneco) {
+      tdFix.style.textAlign = 'right';
+      tdFix.style.color = 'var(--text3)';
+      tdFix.textContent = '€ 65,00';
+    } else {
+      const wrap = document.createElement('div');
+      wrap.className = 'editable';
+      const inp = document.createElement('input');
+      inp.type = 'number';
+      inp.min = 0; inp.max = 500; inp.step = 0.01;
+      inp.value = p.fixedFee !== null ? p.fixedFee : '';
+      inp.placeholder = '0,00';
+      inp.addEventListener('input', () => { providers[idx].fixedFee = inp.value === '' ? null : parseFloat(inp.value); update(); });
+      const unit = document.createElement('span');
+      unit.className = 'unit'; unit.textContent = '€/j';
+      wrap.appendChild(inp); wrap.appendChild(unit);
+      tdFix.appendChild(wrap);
+    }
+    tr.appendChild(tdFix);
+
+    // Energy price cell
+    const tdEp = document.createElement('td');
+    if (p.isFlexEneco) {
+      tdEp.style.textAlign = 'right';
+      tdEp.style.color = 'var(--blue)';
+      tdEp.style.fontWeight = '600';
+      tdEp.textContent = flexEP(ttf).toFixed(2).replace('.',',') + ' ct';
+    } else {
+      const wrap = document.createElement('div');
+      wrap.className = 'editable';
+      const inp = document.createElement('input');
+      inp.type = 'number';
+      inp.min = 0; inp.max = 30; inp.step = 0.01;
+      inp.value = p.energyPrice !== null ? p.energyPrice : '';
+      inp.placeholder = '0,00';
+      inp.addEventListener('input', () => { providers[idx].energyPrice = inp.value === '' ? null : parseFloat(inp.value); update(); });
+      const unit = document.createElement('span');
+      unit.className = 'unit'; unit.textContent = 'ct/kWh';
+      wrap.appendChild(inp); wrap.appendChild(unit);
+      tdEp.appendChild(wrap);
+    }
+    tr.appendChild(tdEp);
+
+    // Total cell
+    const tdTot = document.createElement('td');
+    tdTot.className = 'total-cell';
+    tdTot.style.color = isBest ? '#1a6b47' : (total !== null ? 'var(--blue)' : 'var(--text3)');
+    tdTot.textContent = fmt(total);
+    tr.appendChild(tdTot);
+
+    tbody.appendChild(tr);
+  });
+}
+
+function update() {
+  const annual = getAnnual();
+  const sc = SCENARIOS[activeScenario];
+  const consumption = getConsumption(annual);
+  const fixd = fixedCosts(annual);
+  const ttf = getTTF();
+
+  // Slider gradient
+  const pct = ((ttf - 20) / 60 * 100).toFixed(1);
+  document.getElementById('ttf-slider').style.setProperty('--pct', pct + '%');
+  document.getElementById('ttf-disp').textContent = '€' + ttf.toFixed(0);
+  document.getElementById('flex-ep-now').textContent = flexEP(ttf).toFixed(2).replace('.',',');
+  document.getElementById('sc-desc').textContent = sc.desc;
+
+  // Eneco specific
+  const enecoProp = annual * NET_PROP;
+  const transport = annual * TRANSPORT;
+  const taxes = Math.min(annual, 12000) * TAX1 + Math.max(0, annual - 12000) * TAX2;
+  const enFlexEnergy = calcFlexEnergy(sc, consumption);
+  const enVastEnergy = annual * 4.85 / 100;
+  const enFlexTotal = fixd + 65 + enFlexEnergy;
+  const enVastTotal = fixd + 65 + enVastEnergy;
+  const diff = enFlexTotal - enVastTotal;
+
+  document.getElementById('s-flex').textContent = fmt(enFlexTotal);
+  document.getElementById('s-vast').textContent = fmt(enVastTotal);
+  document.getElementById('s-save').textContent = fmt(Math.abs(diff));
+  document.getElementById('s-save-lbl').textContent = diff > 0 ? 'Besparing met VAST' : 'FLEX is goedkoper';
+  document.getElementById('s-save-sub').textContent = diff > 0
+    ? 'U bespaart dit bedrag door over te stappen naar VAST'
+    : 'FLEX is voordelig in dit scenario';
+  document.getElementById('s-save').style.color = 'var(--blue)';
+
+  document.getElementById('t-flex-e').textContent = fmtDec(enFlexEnergy);
+  document.getElementById('t-vast-e').textContent = fmtDec(enVastEnergy);
+  document.getElementById('t-net-prop').textContent = fmtDec(enecoProp) + ' (beide)';
+  document.getElementById('t-transport').textContent = fmtDec(transport) + ' (beide)';
+  document.getElementById('t-taxes').textContent = fmtDec(taxes) + ' (beide)';
+  document.getElementById('t-flex-tot').innerHTML = fmt(enFlexTotal) + ' <span class="tag tag-red">FLEX</span>';
+  document.getElementById('t-vast-tot').innerHTML = fmt(enVastTotal) + ' <span class="tag tag-green">VAST</span>';
+
+  renderProviderTable();
+  buildCharts(sc, consumption, annual, fixd);
+}
+
+function buildCharts(sc, consumption, annual, fixd) {
+  // TTF chart
+  if (ttfChart) ttfChart.destroy();
+  ttfChart = new Chart(document.getElementById('ttfChart'), {
+    type: 'line',
+    data: {
+      labels: MONTHS,
+      datasets: [
+        { data: sc.ttf, borderColor: '#FF8918', backgroundColor: 'rgba(255,137,24,0.08)', fill: true, borderWidth: 2.5, pointRadius: 4, pointBackgroundColor: '#FF8918', tension: 0.3 },
+        { data: Array(12).fill(BREAKEVEN), borderColor: '#ffb87a', borderWidth: 1.5, borderDash: [5,4], pointRadius: 0, fill: false }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: {
+        label: item => item.datasetIndex === 0
+          ? `TTF: €${item.raw}/MWh → FLEX: ${flexEP(item.raw).toFixed(2)} ct/kWh`
+          : `Breekpunt: €${item.raw}/MWh`
+      }}},
+      scales: {
+        x: { ticks: { color:'#9996a8', font:{size:11,family:'Jost'} }, grid: { color:'rgba(96,41,209,0.05)' } },
+        y: { min: 20, max: 75, ticks: { callback: v=>'€'+v, color:'#9996a8', font:{size:11,family:'Jost'} }, grid: { color:'rgba(96,41,209,0.05)' } }
+      }
+    }
+  });
+
+  // Cost chart — all providers with data
+  const COLORS = ['#FF8918','#6029D1','#1694FF','#2aab6e','#e05a00','#9b59b6','#e74c3c'];
+  const datasets = [];
+  const legendItems = [];
+
+  providers.forEach((p, i) => {
+    let monthlyData;
+    if (p.isFlexEneco) {
+      monthlyData = sc.ttf.map((ttf, mi) => (consumption[mi] * flexEP(ttf) / 100).toFixed(2));
+    } else if (p.energyPrice !== null && p.fixedFee !== null) {
+      monthlyData = consumption.map(k => (k * p.energyPrice / 100).toFixed(2));
+    } else return;
+
+    const color = COLORS[i % COLORS.length];
+    datasets.push({ label: `${p.name} ${p.type}`, data: monthlyData, backgroundColor: color, borderRadius: 3, barPercentage: 0.7 / Math.max(1, datasets.length + 1) * 1.5, categoryPercentage: 0.9 });
+    legendItems.push({ label: `${p.name} ${p.type}`, color });
+  });
+
+  if (costChart) costChart.destroy();
+  costChart = new Chart(document.getElementById('costChart'), {
+    type: 'bar',
+    data: { labels: MONTHS, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: item => `${item.dataset.label}: €${parseFloat(item.raw).toFixed(0)}` } } },
+      scales: {
+        x: { ticks: { color:'#9996a8', font:{size:11,family:'Jost'} }, grid: { color:'rgba(96,41,209,0.05)' } },
+        y: { ticks: { callback: v=>'€'+v, color:'#9996a8', font:{size:11,family:'Jost'} }, grid: { color:'rgba(96,41,209,0.05)' } }
+      }
+    }
+  });
+
+  // Legend
+  const legendEl = document.getElementById('cost-legend');
+  legendEl.innerHTML = legendItems.map(l => `<span class="leg-item"><span class="leg-dot" style="background:${l.color}"></span>${l.label}</span>`).join('');
+}
+
+// Add provider button
+document.getElementById('add-provider-btn').addEventListener('click', () => {
+  const name = prompt('Naam van de leverancier:');
+  if (!name) return;
+  const type = prompt('Type contract (bijv. "Vaste prijs 1 jaar"):') || 'Vaste prijs';
+  providers.push({ name, type, fixedFee: null, energyPrice: null, isFlexEneco: false, color: '#888' });
+  update();
+});
+
+// Scenario tabs
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    this.classList.add('active');
+    activeScenario = parseInt(this.dataset.sc);
+    update();
+  });
+});
+
+document.getElementById('annual-kwh').addEventListener('input', update);
+document.getElementById('ttf-slider').addEventListener('input', update);
+
+update();
+</script>
+</body>
+</html>
